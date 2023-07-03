@@ -1,0 +1,5 @@
+*.yaml
+!.pre-commit-config.yaml
+
+secrets.*
+!secrets.*.example
