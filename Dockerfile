@@ -42,9 +42,15 @@ RUN set -eux \
   ; chown root:root /install/keeper/wal-g \
   ; /install/keeper/wal-g --version
 
+# --- Base
+
+FROM scratch AS empty
+
+LABEL org.opencontainers.image.source https://github.com/k8s-images/stolon
+
 # --- Sentinel
 
-FROM scratch AS sentinel
+FROM empty AS sentinel
 
 COPY --from=stolon /install/stolon-sentinel /stolon-sentinel
 
@@ -62,7 +68,7 @@ ENTRYPOINT ["/stolon-sentinel"]
 
 # --- Proxy
 
-FROM scratch AS proxy
+FROM empty AS proxy
 
 COPY --from=stolon /install/stolon-proxy /stolon-proxy
 
@@ -82,7 +88,7 @@ ENTRYPOINT ["/stolon-proxy"]
 
 # --- Stolon CLI
 
-FROM scratch AS stolonctl
+FROM empty AS stolonctl
 
 COPY --from=stolon /install/stolonctl /stolonctl
 
@@ -98,6 +104,8 @@ CMD ["--help"]
 # --- Keeper
 
 FROM postgres-base AS keeper
+
+LABEL org.opencontainers.image.source https://github.com/k8s-images/stolon
 
 COPY --from=stolon /install/keeper /usr/local/bin
 
