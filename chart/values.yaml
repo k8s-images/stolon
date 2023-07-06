@@ -1,0 +1,302 @@
+# Default values for stolon.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+imagePullSecrets: []
+
+clusterName: k8s-ha
+
+initCluster: true
+updateClusterSpec: false
+
+# -- See: https://github.com/sorintlab/stolon/blob/master/doc/cluster_spec.md
+clusterSpec:
+  initMode: new
+  # sleepInterval: 5s
+  # requestTimeout: 10s
+  # failInterval: 20s
+  # proxyCheckInterval: 5s
+  # proxyTimeout: 15s
+  # deadKeeperRemovalInterval: 48h
+  # maxStandbys: 20
+  # maxStandbysPerSender: 3
+  # maxStandbyLag: 1MiB
+  # synchronousReplication: true
+  # minSynchronousStandbys: 1
+  # maxSynchronousStandbys: 1
+  # additionalWalSenders: 5
+  # additionalMasterReplicationSlots:
+  #   - barman
+  # usePgrewind: true
+  # role: master
+  # newConfig:
+  #   locale: ""
+  #   encoding: ""
+  #   dataChecksums: false
+  # existingConfig: {}
+  # mergePgParameters: true
+  # defaultSUReplAccessMode: all
+  # pgParameters:
+  #   archive_mode: on
+  #   archive_command: /etc/wal-g.d/env wal-g wal-push %p"
+  #   checkpoint_completion_target: "0.9"
+  #   datestyle: "iso,mdy"
+  #   default_statistics_target: "100"
+  #   default_text_search_config: "pg_catalog.english"
+  #   dynamic_shared_memory_type: "sysv"
+  #   effective_cache_size: "4608MB"
+  #   effective_io_concurrency: "200"
+  #   lc_messages: "en_US.utf8"
+  #   lc_monetary: "en_US.utf8"
+  #   lc_numeric: "en_US.utf8"
+  #   lc_time: "en_US.utf8"
+  #   log_timezone: "Etc/UTC"
+  #   maintenance_work_mem: "384MB"
+  #   max_connections: "100"
+  #   max_parallel_maintenance_workers: "2"
+  #   max_parallel_workers: "3"
+  #   max_parallel_workers_per_gather: "2"
+  #   max_wal_size: "8GB"
+  #   max_worker_processes: "8"
+  #   min_wal_size: "2GB"
+  #   random_page_cost: "1.1"
+  #   shared_buffers: "1536MB"
+  #   shared_preload_libraries: "pg_stat_statements"
+  #   timezone: "Etc/UTC"
+  #   wal_buffers: "16MB"
+  #   wal_level: "replica"
+  #   work_mem: "7864kB"
+  # pitrConfig:
+  #   # See: https://github.com/wal-g/wal-g/blob/master/docs/PostgreSQL.md
+  #   dataRestoreCommand: envdir /etc/wal-g.d/env wal-g backup-fetch %d LATEST
+  #   archiveRecoverySettings:
+  #     restoreCommand: envdir /etc/wal-g.d/env wal-g wal-fetch "%f" "%p"
+  #   recoveryTargetSettings:
+  #     recoveryTarget: ""
+  #     recoveryTargetLsn: ""
+  #     recoveryTargetName: ""
+  #     recoveryTargetTime: ""
+  #     recoveryTargetXid: ""
+  #     recoveryTargetTimeline: ""
+  # standbyConfig:
+  #   primaryConnInfo: ""
+  #   primarySlotName: ""
+  #   recoveryMinApplyDelay: ""
+  # pgHBA:
+  #   - host all all 0.0.0.0/0 md5
+  #   - host all all ::0/0 md5
+  #   - host replication all 0.0.0.0/0 md5
+  #   - host replication all ::0/0 md5
+  # automaticPgRestart: true
+  # dbWaitReadyTimeout: 60s
+  # syncTimeout: 0
+
+suUsername: stolon_su
+suPassword: ""
+
+replUsername: stolon_repl
+replPassword: ""
+
+rbac:
+  create: true
+  name: ""
+  rules:
+    - apiGroups: [""]
+      verbs: ["*"]
+      resources:
+        - pods
+        - configmaps
+        - events
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+serviceMonitor:
+  create: false
+
+  name: ""
+  namespace: ""
+
+  jobLabel: stolon-cluster
+  honorLabels: false
+  interval: 30s
+  scrapeTimeout: 10s
+
+  relabelings: []
+  metricRelabelings: []
+
+sentinel:
+  replicaCount: 1
+
+  image:
+    repository: ghcr.io/k8s-images/stolon/sentinel
+    pullPolicy: IfNotPresent
+    tag: 0.17.0-r0
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 0
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsUser: 1042
+    runAsGroup: 1042
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  metrics:
+    enabled: true
+    port: 9001
+
+proxy:
+  replicaCount: 1
+
+  image:
+    repository: ghcr.io/k8s-images/stolon/proxy
+    pullPolicy: IfNotPresent
+    tag: 0.17.0-r0
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 0
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsUser: 1042
+    runAsGroup: 1042
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  containerPort: 5432
+
+  metrics:
+    enabled: true
+    port: 9002
+
+  service:
+    name: ""
+    type: ClusterIP
+    port: 5432
+
+keeper:
+  replicaCount: 1
+
+  image:
+    repository: ghcr.io/k8s-images/stolon/keeper
+    pullPolicy: IfNotPresent
+    tag: 0.17.0-13.11-r0
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsUser: 1042
+    runAsGroup: 1042
+
+  podAnnotations:
+    kubectl.kubernetes.io/default-container: keeper
+
+  podSecurityContext:
+    fsGroup: 1042
+
+  containerPort: 6432
+
+  metrics:
+    enabled: true
+    port: 9003
+
+  persistence:
+    enabled: false
+    storageClass: ""
+    size: 8Gi
+
+stolonctl:
+  image:
+    repository: ghcr.io/k8s-images/stolon/stolonctl
+    pullPolicy: IfNotPresent
+    tag: 0.17.0-r0

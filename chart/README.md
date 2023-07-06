@@ -1,0 +1,129 @@
+# stolon
+
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.17.0](https://img.shields.io/badge/AppVersion-0.17.0-informational?style=flat-square)
+
+Stolon is a cloud native PostgreSQL manager for PostgreSQL high availability
+
+**Homepage:** <https://github.com/k8s-images/stolon>
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| Anton Kulikov |  | <https://github.com/4ops> |
+
+## Source Code
+
+* <https://github.com/sorintlab/stolon>
+* <https://github.com/wal-g/wal-g>
+* <https://git.postgresql.org/gitweb/?p=postgresql.git>
+
+## Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| clusterName | string | `"k8s-ha"` |  |
+| clusterSpec | object | `{"initMode":"new"}` | See: https://github.com/sorintlab/stolon/blob/master/doc/cluster_spec.md |
+| fullnameOverride | string | `""` |  |
+| imagePullSecrets | list | `[]` |  |
+| initCluster | bool | `true` |  |
+| keeper.affinity | object | `{}` |  |
+| keeper.containerPort | int | `6432` |  |
+| keeper.image.pullPolicy | string | `"IfNotPresent"` |  |
+| keeper.image.repository | string | `"ghcr.io/k8s-images/stolon/keeper"` |  |
+| keeper.image.tag | string | `"0.17.0-13.11-r0"` |  |
+| keeper.metrics.enabled | bool | `true` |  |
+| keeper.metrics.port | int | `9003` |  |
+| keeper.nodeSelector | object | `{}` |  |
+| keeper.persistence.enabled | bool | `false` |  |
+| keeper.persistence.size | string | `"8Gi"` |  |
+| keeper.persistence.storageClass | string | `""` |  |
+| keeper.podAnnotations."kubectl.kubernetes.io/default-container" | string | `"keeper"` |  |
+| keeper.podSecurityContext.fsGroup | int | `1042` |  |
+| keeper.replicaCount | int | `1` |  |
+| keeper.resources | object | `{}` |  |
+| keeper.securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| keeper.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| keeper.securityContext.readOnlyRootFilesystem | bool | `true` |  |
+| keeper.securityContext.runAsGroup | int | `1042` |  |
+| keeper.securityContext.runAsUser | int | `1042` |  |
+| keeper.tolerations | list | `[]` |  |
+| nameOverride | string | `""` |  |
+| proxy.affinity | object | `{}` |  |
+| proxy.autoscaling.enabled | bool | `false` |  |
+| proxy.autoscaling.maxReplicas | int | `100` |  |
+| proxy.autoscaling.minReplicas | int | `1` |  |
+| proxy.autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
+| proxy.autoscaling.targetMemoryUtilizationPercentage | int | `0` |  |
+| proxy.containerPort | int | `5432` |  |
+| proxy.image.pullPolicy | string | `"IfNotPresent"` |  |
+| proxy.image.repository | string | `"ghcr.io/k8s-images/stolon/proxy"` |  |
+| proxy.image.tag | string | `"0.17.0-r0"` |  |
+| proxy.metrics.enabled | bool | `true` |  |
+| proxy.metrics.port | int | `9002` |  |
+| proxy.nodeSelector | object | `{}` |  |
+| proxy.podAnnotations | object | `{}` |  |
+| proxy.podSecurityContext | object | `{}` |  |
+| proxy.replicaCount | int | `1` |  |
+| proxy.resources | object | `{}` |  |
+| proxy.securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| proxy.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| proxy.securityContext.readOnlyRootFilesystem | bool | `true` |  |
+| proxy.securityContext.runAsGroup | int | `1042` |  |
+| proxy.securityContext.runAsUser | int | `1042` |  |
+| proxy.service.name | string | `""` |  |
+| proxy.service.port | int | `5432` |  |
+| proxy.service.type | string | `"ClusterIP"` |  |
+| proxy.tolerations | list | `[]` |  |
+| rbac.create | bool | `true` |  |
+| rbac.name | string | `""` |  |
+| rbac.rules[0].apiGroups[0] | string | `""` |  |
+| rbac.rules[0].resources[0] | string | `"pods"` |  |
+| rbac.rules[0].resources[1] | string | `"configmaps"` |  |
+| rbac.rules[0].resources[2] | string | `"events"` |  |
+| rbac.rules[0].verbs[0] | string | `"*"` |  |
+| replPassword | string | `""` |  |
+| replUsername | string | `"stolon_repl"` |  |
+| sentinel.affinity | object | `{}` |  |
+| sentinel.autoscaling.enabled | bool | `false` |  |
+| sentinel.autoscaling.maxReplicas | int | `100` |  |
+| sentinel.autoscaling.minReplicas | int | `1` |  |
+| sentinel.autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
+| sentinel.autoscaling.targetMemoryUtilizationPercentage | int | `0` |  |
+| sentinel.image.pullPolicy | string | `"IfNotPresent"` |  |
+| sentinel.image.repository | string | `"ghcr.io/k8s-images/stolon/sentinel"` |  |
+| sentinel.image.tag | string | `"0.17.0-r0"` |  |
+| sentinel.metrics.enabled | bool | `true` |  |
+| sentinel.metrics.port | int | `9001` |  |
+| sentinel.nodeSelector | object | `{}` |  |
+| sentinel.podAnnotations | object | `{}` |  |
+| sentinel.podSecurityContext | object | `{}` |  |
+| sentinel.replicaCount | int | `1` |  |
+| sentinel.resources | object | `{}` |  |
+| sentinel.securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| sentinel.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| sentinel.securityContext.readOnlyRootFilesystem | bool | `true` |  |
+| sentinel.securityContext.runAsGroup | int | `1042` |  |
+| sentinel.securityContext.runAsUser | int | `1042` |  |
+| sentinel.tolerations | list | `[]` |  |
+| serviceAccount.annotations | object | `{}` |  |
+| serviceAccount.create | bool | `true` |  |
+| serviceAccount.name | string | `""` |  |
+| serviceMonitor.create | bool | `false` |  |
+| serviceMonitor.honorLabels | bool | `false` |  |
+| serviceMonitor.interval | string | `"30s"` |  |
+| serviceMonitor.jobLabel | string | `"stolon-cluster"` |  |
+| serviceMonitor.metricRelabelings | list | `[]` |  |
+| serviceMonitor.name | string | `""` |  |
+| serviceMonitor.namespace | string | `""` |  |
+| serviceMonitor.relabelings | list | `[]` |  |
+| serviceMonitor.scrapeTimeout | string | `"10s"` |  |
+| stolonctl.image.pullPolicy | string | `"IfNotPresent"` |  |
+| stolonctl.image.repository | string | `"ghcr.io/k8s-images/stolon/stolonctl"` |  |
+| stolonctl.image.tag | string | `"0.17.0-r0"` |  |
+| suPassword | string | `""` |  |
+| suUsername | string | `"stolon_su"` |  |
+| updateClusterSpec | bool | `false` |  |
+
+----------------------------------------------
+Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)

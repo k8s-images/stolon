@@ -1,0 +1,20 @@
+apiVersion: v2
+type: application
+name: stolon
+icon: https://github.com/sorintlab/stolon/raw/master/logos/stolon-color.png
+description: Stolon is a cloud native PostgreSQL manager for PostgreSQL high availability
+version: 0.1.0
+appVersion: 0.17.0
+dependencies: []
+home: https://github.com/k8s-images/stolon
+sources:
+  - https://github.com/sorintlab/stolon
+  - https://github.com/wal-g/wal-g
+  - https://git.postgresql.org/gitweb/?p=postgresql.git
+maintainers:
+  - name: Anton Kulikov
+    url: https://github.com/4ops
+keywords:
+  - postgresql
+  - database
+  - stolon

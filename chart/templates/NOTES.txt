@@ -1,0 +1,5 @@
+You can view database service superuser credentials using commands:
+```
+kubectl -n {{ .Release.Namespace }} get secrets {{ include "stolon.fullname" . }} -o jsonpath='{.data.pg-su-username}' | base64 -d`.
+kubectl -n {{ .Release.Namespace }} get secrets {{ include "stolon.fullname" . }} -o jsonpath='{.data.pg-su-password}' | base64 -d`.
+```

@@ -1,0 +1,20 @@
+{{- if or .Values.sentinel.metrics.enabled .Values.proxy.metrics.enabled .Values.keeper.metrics.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "stolon.fullname" . | printf "%s-metrics" | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "stolon.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  sessionAffinity: None
+  publishNotReadyAddresses: true
+  ports:
+    - port: 80
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+  selector:
+    {{- include "stolon.selectorLabels" . | nindent 4 }}
+{{- end -}}

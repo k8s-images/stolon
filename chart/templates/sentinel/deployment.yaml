@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "stolon.sentinel.name" . }}
+  labels:
+    {{- include "stolon.labels" . | nindent 4 }}
+    app.kubernetes.io/component: sentinel
+spec:
+  {{- if not .Values.sentinel.autoscaling.enabled }}
+  replicas: {{ .Values.sentinel.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "stolon.sentinel.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.sentinel.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "stolon.sentinel.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "stolon.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.sentinel.podSecurityContext | nindent 8 }}
+      containers:
+        - name: sentinel
+          securityContext:
+            {{- toYaml .Values.sentinel.securityContext | nindent 12 }}
+          image: "{{ .Values.sentinel.image.repository }}:{{ .Values.sentinel.image.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.sentinel.image.pullPolicy }}
+          env:
+            {{- include "stolon.commonEnv" . | nindent 12 }}
+            - name: STSENTINEL_CLUSTER_NAME
+              value: {{ .Values.clusterName | quote }}
+          {{- if .Values.sentinel.metrics.enabled }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.sentinel.metrics.port }}
+              protocol: TCP
+          {{- end }}
+          resources:
+            {{- toYaml .Values.sentinel.resources | nindent 12 }}
+      {{- with .Values.sentinel.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.sentinel.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.sentinel.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

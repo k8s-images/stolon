@@ -1,5 +1,9 @@
-*.yaml
-!.pre-commit-config.yaml
+/*.yaml
+!/.pre-commit-config.yaml
 
 secrets.*
 !secrets.*.example
+
+/chart/*.yaml
+!/chart/Chart.yaml
+!/chart/values.yaml

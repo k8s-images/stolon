@@ -1,0 +1,61 @@
+{{- if .Values.updateClusterSpec -}}
+{{- $name := include "stolon.fullname" . | printf "%s-update-cluster-spec" | trunc 63 | trimSuffix "-" -}}
+{{- $annotaions := dict -}}
+{{- $_ := set $annotaions "helm.sh/hook" "post-upgrade" -}}
+{{- $_ := set $annotaions "helm.sh/hook" "before-hook-creation,hook-succeeded" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "stolon.labels" . | nindent 4 }}
+  annotations:
+    {{ toYaml $annotaions | indent 4 | trim }}
+data:
+  spec.json: |
+    {{- toJson .Values.clusterSpec | nindent 4 }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "stolon.labels" . | nindent 4 }}
+  annotations:
+    {{ toYaml $annotaions | indent 4 | trim }}
+spec:
+  initContainers:
+    - name: update-cluster-spec
+      image: {{ include "stolon.stolonctl.image" . | quote }}
+      args:
+        - --cluster-name
+        - {{ .Values.clusterName }}
+        - update
+        - --file
+        - /config/spec.json
+      securityContext:
+        {{- toYaml .Values.keeper.securityContext | nindent 8 }}
+      volumeMounts:
+        - name: config
+          mountPath: /config
+  containers:
+    - name: get-cluster-spec
+      image: {{ include "stolon.stolonctl.image" . | quote }}
+      args:
+        - --cluster-name
+        - {{ .Values.clusterName }}
+        - spec
+      securityContext:
+        {{- toYaml .Values.keeper.securityContext | nindent 8 }}
+      volumeMounts:
+        - name: config
+          mountPath: /config
+  volumes:
+    - name: config
+      configMap:
+        name: {{ $name }}
+  restartPolicy: Never
+  serviceAccountName: {{ include "stolon.serviceAccountName" . }}
+  securityContext:
+    {{- toYaml .Values.keeper.podSecurityContext | nindent 4 }}
+{{- end -}}

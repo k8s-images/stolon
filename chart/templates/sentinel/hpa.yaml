@@ -1,0 +1,29 @@
+{{- if .Values.sentinel.autoscaling.enabled -}}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "stolon.sentinel.name" . }}
+  labels:
+    {{- include "stolon.labels" . | nindent 4 }}
+    app.kubernetes.io/component: sentinel
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "stolon.sentinel.name" . }}
+  minReplicas: {{ .Values.sentinel.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.sentinel.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.sentinel.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.sentinel.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.sentinel.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.sentinel.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end -}}

@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "stolon.keeper.name" . }}
+  labels:
+    {{- include "stolon.labels" . | nindent 4 }}
+    app.kubernetes.io/component: keeper
+spec:
+  replicas: {{ .Values.keeper.replicaCount }}
+  serviceName: {{ include "stolon.keeper.serviceName" . }}
+  selector:
+    matchLabels:
+      {{- include "stolon.keeper.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.keeper.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "stolon.keeper.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "stolon.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.keeper.podSecurityContext | nindent 8 }}
+      containers:
+        - name: keeper
+          securityContext:
+            {{- toYaml .Values.keeper.securityContext | nindent 12 }}
+          image: "{{ .Values.keeper.image.repository }}:{{ .Values.keeper.image.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.keeper.image.pullPolicy }}
+          env:
+            {{- include "stolon.commonEnv" . | nindent 12 }}
+            - name: STKEEPER_CLUSTER_NAME
+              value: {{ .Values.clusterName | quote }}
+            - name: STKEEPER_PG_SU_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "stolon.fullname" . }}
+                  key: pg-su-username
+            - name: STKEEPER_PG_SU_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "stolon.fullname" . }}
+                  key: pg-su-password
+            - name: STKEEPER_PG_REPL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "stolon.fullname" . }}
+                  key: pg-repl-username
+            - name: STKEEPER_PG_REPL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "stolon.fullname" . }}
+                  key: pg-repl-password
+            - name: STOLONCTL_CLUSTER_NAME
+              value: {{ .Values.clusterName | quote }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - stop-keeper
+          ports:
+            - name: postgres
+              containerPort: {{ .Values.keeper.containerPort }}
+              protocol: TCP
+            {{- if .Values.keeper.metrics.enabled }}
+            - name: metrics
+              containerPort: {{ .Values.keeper.metrics.port }}
+              protocol: TCP
+            {{- end }}
+          resources:
+            {{- toYaml .Values.keeper.resources | nindent 12 }}
+          volumeMounts:
+            - name: shm
+              mountPath: /dev/shm
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+      {{- with .Values.keeper.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.keeper.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.keeper.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: shm
+          emptyDir: {}
+        {{- if not .Values.keeper.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+        {{- end }}
+        - name: tmp
+          emptyDir: {}
+  {{- if .Values.keeper.persistence.enabled }}
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        creationTimestamp: null
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.keeper.persistence.size }}
+      {{- if .Values.keeper.persistence.storageClass }}
+      storageClassName: {{ .Values.keeper.persistence.storageClass }}
+      {{- end }}
+      volumeMode: Filesystem
+  {{- end }}
