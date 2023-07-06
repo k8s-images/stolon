@@ -38,6 +38,9 @@ spec:
             {{- include "stolon.commonEnv" . | nindent 12 }}
             - name: STPROXY_CLUSTER_NAME
               value: {{ .Values.clusterName | quote }}
+            {{- range .Values.proxy.extraEnvVars }}
+            - {{ toYaml . | indent 14 | trim }}
+            {{- end }}
           ports:
             - name: postgres
               containerPort: {{ .Values.proxy.containerPort }}
@@ -47,11 +50,28 @@ spec:
               containerPort: {{ .Values.proxy.metrics.port }}
               protocol: TCP
             {{- end }}
+            {{- range .Values.proxy.extraPorts }}
+            - name: {{ .name }}
+              containerPort: {{ .containerPort | int | toString }}
+              {{- if .hostPort }}
+              hostPort: {{ .hostPort | int | toString }}
+              {{- end }}
+              {{- if .hostIP }}
+              hostIP: {{ .hostIP }}
+              {{- end }}
+              protocol: {{ default "TCP" .protocol }}
+            {{- end }}
           readinessProbe:
             tcpSocket:
               port: postgres
           resources:
             {{- toYaml .Values.proxy.resources | nindent 12 }}
+          {{- if .Values.proxy.extraVolumeMounts }}
+          volumeMounts:
+            {{- range .Values.proxy.extraVolumeMounts }}
+            - {{ toYaml . | indent 14 | trim }}
+            {{- end }}
+          {{- end }}
       {{- with .Values.proxy.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -63,4 +83,10 @@ spec:
       {{- with .Values.proxy.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.proxy.extraVolumes }}
+      volumes:
+        {{- range .Values.proxy.extraVolumes }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
       {{- end }}

@@ -59,11 +59,27 @@ spec:
                   key: pg-repl-password
             - name: STOLONCTL_CLUSTER_NAME
               value: {{ .Values.clusterName | quote }}
+            {{- range .Values.keeper.extraEnvVars }}
+            - {{ toYaml . | indent 14 | trim }}
+            {{- end }}
+          {{- if .Values.keeper.preStopHook.enabled }}
           lifecycle:
             preStop:
+              {{- if .Values.keeper.preStopHook.exec }}
+              exec:
+                {{- toYaml .Values.keeper.preStopHook.exec | nindent 16 }}
+              {{- else if .Values.keeper.preStopHook.httpGet }}
+              httpGet:
+                {{- toYaml .Values.keeper.preStopHook.httpGet | nindent 16 }}
+              {{- else if .Values.keeper.preStopHook.tcpSocket }}
+              tcpSocket:
+                {{- toYaml .Values.keeper.preStopHook.tcpSocket | nindent 16 }}
+              {{- else }}
               exec:
                 command:
                   - stop-keeper
+              {{- end }}
+          {{- end }}
           ports:
             - name: postgres
               containerPort: {{ .Values.keeper.containerPort }}
@@ -72,6 +88,17 @@ spec:
             - name: metrics
               containerPort: {{ .Values.keeper.metrics.port }}
               protocol: TCP
+            {{- end }}
+            {{- range .Values.keeper.extraPorts }}
+            - name: {{ .name }}
+              containerPort: {{ .containerPort | int | toString }}
+              {{- if .hostPort }}
+              hostPort: {{ .hostPort | int | toString }}
+              {{- end }}
+              {{- if .hostIP }}
+              hostIP: {{ .hostIP }}
+              {{- end }}
+              protocol: {{ default "TCP" .protocol }}
             {{- end }}
           resources:
             {{- toYaml .Values.keeper.resources | nindent 12 }}
@@ -82,6 +109,9 @@ spec:
               mountPath: /data
             - name: tmp
               mountPath: /tmp
+            {{- range .Values.keeper.extraVolumeMounts }}
+            - {{ toYaml . | indent 14 | trim }}
+            {{- end }}
       {{- with .Values.keeper.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -103,6 +133,9 @@ spec:
         {{- end }}
         - name: tmp
           emptyDir: {}
+        {{- range .Values.keeper.extraVolumes }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
   {{- if .Values.keeper.persistence.enabled }}
   volumeClaimTemplates:
     - apiVersion: v1

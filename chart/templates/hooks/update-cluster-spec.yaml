@@ -33,11 +33,20 @@ spec:
         - update
         - --file
         - /config/spec.json
+      {{- if .Values.stolonctl.extraEnvVars }}
+      env:
+        {{- range .Values.stolonctl.extraEnvVars }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
+      {{- end }}
       securityContext:
         {{- toYaml .Values.keeper.securityContext | nindent 8 }}
       volumeMounts:
         - name: config
           mountPath: /config
+        {{- range .Values.stolonctl.extraVolumeMounts }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
   containers:
     - name: get-cluster-spec
       image: {{ include "stolon.stolonctl.image" . | quote }}
@@ -45,15 +54,27 @@ spec:
         - --cluster-name
         - {{ .Values.clusterName }}
         - spec
+      {{- if .Values.stolonctl.extraEnvVars }}
+      env:
+        {{- range .Values.stolonctl.extraEnvVars }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
+      {{- end }}
       securityContext:
         {{- toYaml .Values.keeper.securityContext | nindent 8 }}
       volumeMounts:
         - name: config
           mountPath: /config
+        {{- range .Values.stolonctl.extraVolumeMounts }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
   volumes:
     - name: config
       configMap:
         name: {{ $name }}
+    {{- range .Values.stolonctl.extraVolumes }}
+    - {{ toYaml . | indent 6 | trim }}
+    {{- end }}
   restartPolicy: Never
   serviceAccountName: {{ include "stolon.serviceAccountName" . }}
   securityContext:

@@ -38,14 +38,36 @@ spec:
             {{- include "stolon.commonEnv" . | nindent 12 }}
             - name: STSENTINEL_CLUSTER_NAME
               value: {{ .Values.clusterName | quote }}
-          {{- if .Values.sentinel.metrics.enabled }}
+            {{- range .Values.sentinel.extraEnvVars }}
+            - {{ toYaml . | indent 14 | trim }}
+            {{- end }}
+          {{- if or .Values.sentinel.metrics.enabled .Values.sentinel.extraPorts }}
           ports:
+            {{- if .Values.sentinel.metrics.enabled  }}
             - name: metrics
               containerPort: {{ .Values.sentinel.metrics.port }}
               protocol: TCP
+            {{- end }}
+            {{- range .Values.sentinel.extraPorts }}
+            - name: {{ .name }}
+              containerPort: {{ .containerPort | int | toString }}
+              {{- if .hostPort }}
+              hostPort: {{ .hostPort | int | toString }}
+              {{- end }}
+              {{- if .hostIP }}
+              hostIP: {{ .hostIP }}
+              {{- end }}
+              protocol: {{ default "TCP" .protocol }}
+            {{- end }}
           {{- end }}
           resources:
             {{- toYaml .Values.sentinel.resources | nindent 12 }}
+          {{- if .Values.proxy.extraVolumeMounts }}
+          volumeMounts:
+            {{- range .Values.proxy.extraVolumeMounts }}
+            - {{ toYaml . | indent 14 | trim }}
+            {{- end }}
+          {{- end }}
       {{- with .Values.sentinel.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -57,4 +79,10 @@ spec:
       {{- with .Values.sentinel.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.proxy.extraVolumes }}
+      volumes:
+        {{- range .Values.proxy.extraVolumes }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
       {{- end }}

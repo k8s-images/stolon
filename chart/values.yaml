@@ -185,6 +185,11 @@ sentinel:
     enabled: true
     port: 9001
 
+  extraEnvVars: []
+  extraPorts: []
+  extraVolumes: []
+  extraVolumeMounts: []
+
 proxy:
   replicaCount: 1
 
@@ -243,6 +248,11 @@ proxy:
     type: ClusterIP
     port: 5432
 
+  extraEnvVars: []
+  extraPorts: []
+  extraVolumes: []
+  extraVolumeMounts: []
+
 keeper:
   replicaCount: 1
 
@@ -290,13 +300,29 @@ keeper:
     enabled: true
     port: 9003
 
+  extraPorts: []
+
+  preStopHook:
+    enabled: true
+    exec: {}
+    httpGet: {}
+    tcpSocket: {}
+
   persistence:
     enabled: false
     storageClass: ""
     size: 8Gi
+
+  extraEnvVars: []
+  extraVolumes: []
+  extraVolumeMounts: []
 
 stolonctl:
   image:
     repository: ghcr.io/k8s-images/stolon/stolonctl
     pullPolicy: IfNotPresent
     tag: 0.17.0-r0
+
+  extraEnvVars: []
+  extraVolumes: []
+  extraVolumeMounts: []
