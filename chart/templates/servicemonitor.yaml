@@ -24,7 +24,7 @@ spec:
       metricRelabelings:
         {{ toYaml .Values.serviceMonitor.metricRelabelings | indent 8 | trim }}
       {{- end }}
-  jobLabel: stolon-cluster
+  jobLabel: {{ .Values.serviceMonitor.jobLabel }}
   namespaceSelector:
     matchNames:
       - {{ .Release.Namespace | quote }}

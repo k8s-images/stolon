@@ -1,0 +1,107 @@
+{{- if .Values.postInstallQuieries -}}
+{{- $name := include "stolon.fullname" . | printf "%s-post-install-queries" | trunc 63 | trimSuffix "-" -}}
+{{- $annotations := dict -}}
+{{- $_ := set $annotations "helm.sh/hook" "post-install" -}}
+{{- $_ := set $annotations "helm.sh/hook-weight" "100" -}}
+{{- $_ := set $annotations "helm.sh/hook-delete-policy" "before-hook-creation" -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "stolon.labels" . | nindent 4 }}
+  annotations:
+    {{ toYaml $annotations | indent 4 | trim }}
+data:
+  {{- range $_, $query := .Values.postInstallQuieries }}
+  {{ printf "%s.sql: %s" (sha1sum $query) ($query | b64enc) }}
+  {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "stolon.labels" . | nindent 4 }}
+  annotations:
+    {{ toYaml $annotations | indent 4 | trim }}
+data:
+  run-queries.sh: |
+    #!/usr/bin/env bash
+
+    echo "Server is ${PGHOST:-}:${PGPORT:-}"
+    echo "Database is ${PGDATABASE:-}"
+    echo "User is ${PGUSER:-}"
+    echo "Waiting for database in ready state..."
+
+    while true; do
+      code=0
+
+      pg_isready \
+        --host="$PGHOST" \
+        --port="$PGPORT" \
+        --username="$PGUSER" \
+        --dbname="$PGDATABASE" \
+      || code=$?
+
+      if [ "$code" -ne 0 ]; then
+        sleep 10
+      else
+        break
+      fi
+    done
+
+    echo "Applying initial data script..."
+    {{- range $_, $query := .Values.postInstallQuieries }}
+    {{ printf "psql --no-password --variable=ON_ERROR_STOP=1 --file=/queries/%s.sql || echo \"Failed with exit code $?\" >&2" (sha1sum $query) }}
+    {{- end }}
+    echo "Done"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "stolon.labels" . | nindent 4 }}
+  annotations:
+    {{ toYaml $annotations | indent 4 | trim }}
+spec:
+  containers:
+    - name: run-queries
+      image: {{ include "stolon.postgresUtils.image" . | quote }}
+      args: ["/scripts/run-queries.sh"]
+      env:
+        {{ include "stolon.postgresUtils.envVars" . | indent 8 | trim }}
+        {{- range .Values.postgresUtils.extraEnvVars }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
+      securityContext:
+        {{- toYaml .Values.postgresUtils.securityContext | nindent 8 }}
+      volumeMounts:
+        - name: scripts
+          mountPath: scripts
+        - name: queries
+          mountPath: queries
+        {{- range .Values.postgresUtils.extraVolumeMounts }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
+  volumes:
+    - name: scripts
+      configMap:
+        name: {{ $name }}
+        items:
+          - key: run-queries.sh
+            mode: 493
+            path: run-queries.sh
+    - name: queries
+      secret:
+        secretName: {{ $name }}
+        defaultMode: 420
+    {{- range .Values.postgresUtils.extraVolumes }}
+    - {{ toYaml . | indent 6 | trim }}
+    {{- end }}
+  restartPolicy: Never
+  serviceAccountName: {{ include "stolon.serviceAccountName" . }}
+  securityContext:
+    {{- toYaml .Values.postgresUtils.podSecurityContext | nindent 4 }}
+{{- end -}}

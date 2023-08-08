@@ -1,8 +1,9 @@
 {{- if .Values.initCluster -}}
 {{- $name := include "stolon.fullname" . | printf "%s-init-cluster" | trunc 63 | trimSuffix "-" -}}
-{{- $annotaions := dict -}}
-{{- $_ := set $annotaions "helm.sh/hook" "post-install" -}}
-{{- $_ := set $annotaions "helm.sh/hook" "before-hook-creation,hook-succeeded" -}}
+{{- $annotations := dict -}}
+{{- $_ := set $annotations "helm.sh/hook" "post-install" -}}
+{{- $_ := set $annotations "helm.sh/hook-weight" "10" -}}
+{{- $_ := set $annotations "helm.sh/hook-delete-policy" "before-hook-creation" -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -10,7 +11,7 @@ metadata:
   labels:
     {{- include "stolon.labels" . | nindent 4 }}
   annotations:
-    {{ toYaml $annotaions | indent 4 | trim }}
+    {{ toYaml $annotations | indent 4 | trim }}
 data:
   spec.json: |
     {{- toJson .Values.clusterSpec | nindent 4 }}
@@ -22,7 +23,7 @@ metadata:
   labels:
     {{- include "stolon.labels" . | nindent 4 }}
   annotations:
-    {{ toYaml $annotaions | indent 4 | trim }}
+    {{ toYaml $annotations | indent 4 | trim }}
 spec:
   containers:
     - name: init-cluster

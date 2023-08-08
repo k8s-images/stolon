@@ -1,9 +1,9 @@
 
 # --- Aliases for official images
 
-FROM docker.io/library/postgres:13.11 AS postgres-base
-FROM docker.io/sorintlab/stolon:v0.17.0-pg13 AS sorintlab-stolon
-FROM docker.io/library/busybox:1.36.1 AS builder
+FROM docker.io/library/postgres:13.11@sha256:538cb8a80fbb8da5275d7e1564da9413357a47dc2b0f8803708bafe3bcece1e8 AS postgres-base
+FROM docker.io/sorintlab/stolon:v0.17.0-pg13@sha256:7a6e890392f2fa787fa136408bbf757d4c7deb6230efc07b773b35f323685103 AS sorintlab-stolon
+FROM docker.io/library/busybox:1.36.1@sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee AS builder
 
 # --- Scripts
 
@@ -153,3 +153,27 @@ VOLUME ["/data"]
 
 ENTRYPOINT ["start-keeper"]
 CMD ["--data-dir", "/data"]
+
+# --- Postgres Client Utils
+
+FROM postgres-base AS postgres-utils
+
+LABEL org.opencontainers.image.source https://github.com/k8s-images/stolon
+
+COPY --chown=root:root include/postgres-utils-entrypoint.sh /entrypoint
+
+RUN set -eux \
+  ; useradd \
+    --comment "Postgres Client" \
+    --create-home \
+    --uid 1042 \
+    --shell /bin/bash \
+    k8s \
+  ; rm -f /home/k8s/.bash_logout \
+          /home/k8s/.bash_history \
+  ; chmod 0755 /entrypoint
+
+USER 1042:1042
+
+ENTRYPOINT ["/entrypoint"]
+CMD ["--help"]

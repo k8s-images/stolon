@@ -2,12 +2,13 @@ REGISTRY_SERVER  ?= "ghcr.io"
 IMAGE_REPOSITORY ?= $(REGISTRY_SERVER)/k8s-images/stolon
 STOLON_VERSION   ?= $(shell echo $${STOLON_VERSION:-"0.17.0"})
 PGVERSION        ?= $(shell echo $${PGVERSION:-"13.11"})
-REVISION         ?= $(shell echo $${REVISION:-"0"})
+REVISION         ?= $(shell echo $${REVISION:-"1"})
 
 STSENTINEL_IMAGE = $(IMAGE_REPOSITORY)/sentinel:$(STOLON_VERSION)-r$(REVISION)
 STPROXY_IMAGE    = $(IMAGE_REPOSITORY)/proxy:$(STOLON_VERSION)-r$(REVISION)
 STKEEPER_IMAGE   = $(IMAGE_REPOSITORY)/keeper:$(STOLON_VERSION)-$(PGVERSION)-r$(REVISION)
 STOLONCTL_IMAGE  = $(IMAGE_REPOSITORY)/stolonctl:$(STOLON_VERSION)-r$(REVISION)
+PGUTILS_IMAGE    = $(IMAGE_REPOSITORY)/postgres-utils:$(PGVERSION)-r$(REVISION)
 
 hadolint:
 	@hadolint Dockerfile
@@ -36,10 +37,15 @@ keeper: build
 	@docker build . --target keeper --tag ${STKEEPER_IMAGE}
 	@docker run --rm ${STKEEPER_IMAGE} --version
 
-all-images: sentinel proxy stolonctl keeper
+postgres-utils: build
+	@docker build . --target postgres-utils --tag ${PGUTILS_IMAGE}
+	@docker run --rm ${PGUTILS_IMAGE} -- psql --version
+
+all-images: sentinel proxy stolonctl keeper postgres-utils
 
 publish-images:
 	@docker push ${STSENTINEL_IMAGE}
 	@docker push ${STPROXY_IMAGE}
 	@docker push ${STOLONCTL_IMAGE}
 	@docker push ${STKEEPER_IMAGE}
+	@docker push ${PGUTILS_IMAGE}

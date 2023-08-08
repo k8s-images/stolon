@@ -140,7 +140,7 @@ sentinel:
   image:
     repository: ghcr.io/k8s-images/stolon/sentinel
     pullPolicy: IfNotPresent
-    tag: 0.17.0-r0
+    tag: 0.17.0-r1
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -196,7 +196,7 @@ proxy:
   image:
     repository: ghcr.io/k8s-images/stolon/proxy
     pullPolicy: IfNotPresent
-    tag: 0.17.0-r0
+    tag: 0.17.0-r1
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -259,7 +259,7 @@ keeper:
   image:
     repository: ghcr.io/k8s-images/stolon/keeper
     pullPolicy: IfNotPresent
-    tag: 0.17.0-13.11-r0
+    tag: 0.17.0-13.11-r1
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -321,8 +321,36 @@ stolonctl:
   image:
     repository: ghcr.io/k8s-images/stolon/stolonctl
     pullPolicy: IfNotPresent
-    tag: 0.17.0-r0
+    tag: 0.17.0-r1
 
   extraEnvVars: []
   extraVolumes: []
   extraVolumeMounts: []
+
+postgresUtils:
+  image:
+    repository: ghcr.io/k8s-images/stolon/postgres-utils
+    pullPolicy: IfNotPresent
+    tag: 13.11-r1
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsUser: 1042
+    runAsGroup: 1042
+
+  podSecurityContext:
+    fsGroup: 1042
+
+  extraEnvVars: []
+  extraVolumes: []
+  extraVolumeMounts: []
+
+# postInstallQuieries: []
+postInstallQuieries:
+  - CREATE USER myappuser WITH PASSWORD 'myapppassword' CREATEDB
+  - CREATE DATABASE myappdb WITH OWNER myappuser
+  - GRANT ALL PRIVILEGES ON DATABASE myappdb TO myappuser

@@ -1,0 +1,41 @@
+{{- $name := include "stolon.fullname" . | printf "%s-check-is-ready" | trunc 63 | trimSuffix "-" -}}
+{{- $annotations := dict -}}
+{{- $_ := set $annotations "helm.sh/hook" "test" -}}
+{{- $_ := set $annotations "helm.sh/hook-weight" "50" -}}
+{{- $_ := set $annotations "helm.sh/hook-delete-policy" "before-hook-creation" -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "stolon.labels" . | nindent 4 }}
+  annotations:
+    {{ toYaml $annotations | indent 4 | trim }}
+spec:
+  containers:
+    - name: pg-isready
+      image: {{ include "stolon.postgresUtils.image" . | quote }}
+      args: ["pg_isready", "--host=$(PGHOST)", "--port=$(PGPORT)", "--username=$(PGUSER)", "--dbname=postgres"]
+      env:
+        {{ include "stolon.postgresUtils.envVars" . | indent 8 | trim }}
+        {{- range .Values.postgresUtils.extraEnvVars }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
+      securityContext:
+        {{- toYaml .Values.postgresUtils.securityContext | nindent 8 }}
+      {{- if .Values.postgresUtils.extraVolumeMounts }}
+      volumeMounts:
+        {{- range .Values.postgresUtils.extraVolumeMounts }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
+      {{- end }}
+  {{- if .Values.postgresUtils.extraVolumes }}
+  volumes:
+    {{- range .Values.postgresUtils.extraVolumes }}
+    - {{ toYaml . | indent 6 | trim }}
+    {{- end }}
+  {{- end }}
+  restartPolicy: Never
+  serviceAccountName: {{ include "stolon.serviceAccountName" . }}
+  securityContext:
+    {{- toYaml .Values.postgresUtils.podSecurityContext | nindent 4 }}
