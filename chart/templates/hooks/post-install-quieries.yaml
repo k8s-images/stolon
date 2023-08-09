@@ -26,12 +26,15 @@ metadata:
   annotations:
     {{ toYaml $annotations | indent 4 | trim }}
 data:
-  run-queries.sh: |
+  wait-pg-ready.sh: |
     #!/usr/bin/env bash
+
+    set -eu
 
     echo "Server is ${PGHOST:-}:${PGPORT:-}"
     echo "Database is ${PGDATABASE:-}"
     echo "User is ${PGUSER:-}"
+
     echo "Waiting for database in ready state..."
 
     while true; do
@@ -51,10 +54,25 @@ data:
       fi
     done
 
-    echo "Applying initial data script..."
+    echo "Done"
+
+  run-queries.sh: |
+    #!/usr/bin/env bash
+
+    set -eu
+
+    echo "Applying post install queries..."
+
     {{- range $_, $query := .Values.postInstallQuieries }}
-    {{ printf "psql --no-password --variable=ON_ERROR_STOP=1 --file=/queries/%s.sql || echo \"Failed with exit code $?\" >&2" (sha1sum $query) }}
+    echo "Running {{ printf "%s.sql" (sha1sum $query) }}..."
+    psql \
+      --dbname="$PGDATABASE" \
+      --no-password \
+      --variable=ON_ERROR_STOP=1 \
+      --file="/queries/{{ printf "%s.sql" (sha1sum $query) }}" \
+    || echo "Failed with exit code $?" >&2
     {{- end }}
+
     echo "Done"
 ---
 apiVersion: v1
@@ -66,6 +84,23 @@ metadata:
   annotations:
     {{ toYaml $annotations | indent 4 | trim }}
 spec:
+  initContainers:
+    - name: wait-pg-ready
+      image: {{ include "stolon.postgresUtils.image" . | quote }}
+      args: ["/scripts/wait-pg-ready.sh"]
+      env:
+        {{ include "stolon.postgresUtils.envVars" . | indent 8 | trim }}
+        {{- range .Values.postgresUtils.extraEnvVars }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
+      securityContext:
+        {{- toYaml .Values.postgresUtils.securityContext | nindent 8 }}
+      volumeMounts:
+        - name: scripts
+          mountPath: scripts
+        {{- range .Values.postgresUtils.extraVolumeMounts }}
+        - {{ toYaml . | indent 10 | trim }}
+        {{- end }}
   containers:
     - name: run-queries
       image: {{ include "stolon.postgresUtils.image" . | quote }}
@@ -93,6 +128,9 @@ spec:
           - key: run-queries.sh
             mode: 493
             path: run-queries.sh
+          - key: wait-pg-ready.sh
+            mode: 493
+            path: wait-pg-ready.sh
     - name: queries
       secret:
         secretName: {{ $name }}

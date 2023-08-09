@@ -30,6 +30,8 @@ Set PGHOST and PGPORT for postgres utils
     secretKeyRef:
       name: {{ include "stolon.fullname" . }}
       key: pg-port
+- name: PGDATABASE
+  value: postgres
 - name: PGUSER
   valueFrom:
     secretKeyRef:

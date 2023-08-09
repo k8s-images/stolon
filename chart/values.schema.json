@@ -13,6 +13,9 @@
                 }
             }
         },
+        "clusterSuffix": {
+            "type": "string"
+        },
         "fullnameOverride": {
             "type": "string"
         },
@@ -160,6 +163,73 @@
         "nameOverride": {
             "type": "string"
         },
+        "postInstallQuieries": {
+            "type": "array"
+        },
+        "postgresUtils": {
+            "type": "object",
+            "properties": {
+                "extraEnvVars": {
+                    "type": "array"
+                },
+                "extraVolumeMounts": {
+                    "type": "array"
+                },
+                "extraVolumes": {
+                    "type": "array"
+                },
+                "image": {
+                    "type": "object",
+                    "properties": {
+                        "pullPolicy": {
+                            "type": "string"
+                        },
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "podSecurityContext": {
+                    "type": "object",
+                    "properties": {
+                        "fsGroup": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "securityContext": {
+                    "type": "object",
+                    "properties": {
+                        "allowPrivilegeEscalation": {
+                            "type": "boolean"
+                        },
+                        "capabilities": {
+                            "type": "object",
+                            "properties": {
+                                "drop": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "readOnlyRootFilesystem": {
+                            "type": "boolean"
+                        },
+                        "runAsGroup": {
+                            "type": "integer"
+                        },
+                        "runAsUser": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
         "proxy": {
             "type": "object",
             "properties": {
@@ -277,9 +347,6 @@
                         },
                         "port": {
                             "type": "integer"
-                        },
-                        "type": {
-                            "type": "string"
                         }
                     }
                 },
@@ -511,6 +578,37 @@
                         },
                         "tag": {
                             "type": "string"
+                        }
+                    }
+                },
+                "podSecurityContext": {
+                    "type": "object"
+                },
+                "securityContext": {
+                    "type": "object",
+                    "properties": {
+                        "allowPrivilegeEscalation": {
+                            "type": "boolean"
+                        },
+                        "capabilities": {
+                            "type": "object",
+                            "properties": {
+                                "drop": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "readOnlyRootFilesystem": {
+                            "type": "boolean"
+                        },
+                        "runAsGroup": {
+                            "type": "integer"
+                        },
+                        "runAsUser": {
+                            "type": "integer"
                         }
                     }
                 }

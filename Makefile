@@ -2,7 +2,7 @@ REGISTRY_SERVER  ?= "ghcr.io"
 IMAGE_REPOSITORY ?= $(REGISTRY_SERVER)/k8s-images/stolon
 STOLON_VERSION   ?= $(shell echo $${STOLON_VERSION:-"0.17.0"})
 PGVERSION        ?= $(shell echo $${PGVERSION:-"13.11"})
-REVISION         ?= $(shell echo $${REVISION:-"1"})
+REVISION         ?= $(shell echo $${REVISION:-"2"})
 
 STSENTINEL_IMAGE = $(IMAGE_REPOSITORY)/sentinel:$(STOLON_VERSION)-r$(REVISION)
 STPROXY_IMAGE    = $(IMAGE_REPOSITORY)/proxy:$(STOLON_VERSION)-r$(REVISION)

@@ -1,8 +1,7 @@
 {{- $name := include "stolon.fullname" . | printf "%s-check-is-ready" | trunc 63 | trimSuffix "-" -}}
 {{- $annotations := dict -}}
 {{- $_ := set $annotations "helm.sh/hook" "test" -}}
-{{- $_ := set $annotations "helm.sh/hook-weight" "50" -}}
-{{- $_ := set $annotations "helm.sh/hook-delete-policy" "before-hook-creation" -}}
+{{- $_ := set $annotations "helm.sh/hook-delete-policy" "before-hook-creation,hook-succeeded" -}}
 apiVersion: v1
 kind: Pod
 metadata:
@@ -15,7 +14,7 @@ spec:
   containers:
     - name: pg-isready
       image: {{ include "stolon.postgresUtils.image" . | quote }}
-      args: ["pg_isready", "--host=$(PGHOST)", "--port=$(PGPORT)", "--username=$(PGUSER)", "--dbname=postgres"]
+      args: ["pg_isready", "--host=$(PGHOST)", "--port=$(PGPORT)", "--username=$(PGUSER)", "--dbname=$(PGDATABASE)"]
       env:
         {{ include "stolon.postgresUtils.envVars" . | indent 8 | trim }}
         {{- range .Values.postgresUtils.extraEnvVars }}

@@ -1,7 +1,7 @@
 
 # --- Aliases for official images
 
-FROM docker.io/library/postgres:13.11@sha256:538cb8a80fbb8da5275d7e1564da9413357a47dc2b0f8803708bafe3bcece1e8 AS postgres-base
+FROM docker.io/library/postgres:13.11@sha256:538cb8a80fbb8da5275d7e1564da9413357a47dc2b0f8803708bafe3bcece1e8 AS postgres
 FROM docker.io/sorintlab/stolon:v0.17.0-pg13@sha256:7a6e890392f2fa787fa136408bbf757d4c7deb6230efc07b773b35f323685103 AS sorintlab-stolon
 FROM docker.io/library/busybox:1.36.1@sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee AS builder
 
@@ -101,6 +101,23 @@ ENV STOLONCTL_STORE_BACKEND="kubernetes" \
 ENTRYPOINT ["/stolonctl"]
 CMD ["--help"]
 
+# --- Postgres base
+
+FROM postgres AS postgres-base
+
+# hadolint ignore=DL3008
+RUN set -eux \
+  \
+  ; apt-get -qq update \
+  ; apt-get -qq --no-install-recommends install \
+            dnsutils \
+            jq \
+  ; rm -rf /var/cache/apt/* \
+           /var/lib/apt/* \
+  \
+  ; dig -v \
+  ; jq --version
+
 # --- Keeper
 
 FROM postgres-base AS keeper
@@ -109,17 +126,11 @@ LABEL org.opencontainers.image.source https://github.com/k8s-images/stolon
 
 COPY --from=stolon /install/keeper /usr/local/bin
 
-# hadolint ignore=DL3008
 RUN set -eux \
   \
   ; wal-g --version \
   ; stolon-keeper --version \
   ; stolonctl --version \
-  \
-  ; apt-get -qq update \
-  ; apt-get -qq --no-install-recommends install jq \
-  ; rm -rf /var/cache/apt/* /var/lib/apt/* \
-  ; jq --version \
   \
   ; useradd \
     --comment "Stolon Keeper" \
@@ -171,6 +182,7 @@ RUN set -eux \
     k8s \
   ; rm -f /home/k8s/.bash_logout \
           /home/k8s/.bash_history \
+  \
   ; chmod 0755 /entrypoint
 
 USER 1042:1042

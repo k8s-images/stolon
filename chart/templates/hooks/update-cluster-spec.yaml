@@ -62,7 +62,7 @@ spec:
         {{- end }}
       {{- end }}
       securityContext:
-        {{- toYaml .Values.keeper.securityContext | nindent 8 }}
+        {{- toYaml .Values.stolonctl.securityContext | nindent 8 }}
       volumeMounts:
         - name: config
           mountPath: /config
@@ -79,5 +79,5 @@ spec:
   restartPolicy: Never
   serviceAccountName: {{ include "stolon.serviceAccountName" . }}
   securityContext:
-    {{- toYaml .Values.keeper.podSecurityContext | nindent 4 }}
+    {{- toYaml .Values.stolonctl.podSecurityContext | nindent 4 }}
 {{- end -}}

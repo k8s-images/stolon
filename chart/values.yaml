@@ -8,6 +8,7 @@ fullnameOverride: ""
 imagePullSecrets: []
 
 clusterName: k8s-ha
+clusterSuffix: cluster.local
 
 initCluster: true
 updateClusterSpec: false
@@ -140,7 +141,7 @@ sentinel:
   image:
     repository: ghcr.io/k8s-images/stolon/sentinel
     pullPolicy: IfNotPresent
-    tag: 0.17.0-r1
+    tag: 0.17.0-r2
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -166,6 +167,15 @@ sentinel:
   tolerations: []
 
   affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         labelSelector:
+    #           matchLabels:
+    #             component: stolon-sentinel
+    #             stolon-cluster: k8s-ha
+    #         topologyKey: kubernetes.io/hostname
 
   securityContext:
     allowPrivilegeEscalation: false
@@ -196,7 +206,7 @@ proxy:
   image:
     repository: ghcr.io/k8s-images/stolon/proxy
     pullPolicy: IfNotPresent
-    tag: 0.17.0-r1
+    tag: 0.17.0-r2
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -222,6 +232,15 @@ proxy:
   tolerations: []
 
   affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         labelSelector:
+    #           matchLabels:
+    #             component: stolon-proxy
+    #             stolon-cluster: k8s-ha
+    #         topologyKey: topology.kubernetes.io/zone
 
   securityContext:
     allowPrivilegeEscalation: false
@@ -245,7 +264,6 @@ proxy:
 
   service:
     name: ""
-    type: ClusterIP
     port: 5432
 
   extraEnvVars: []
@@ -259,7 +277,7 @@ keeper:
   image:
     repository: ghcr.io/k8s-images/stolon/keeper
     pullPolicy: IfNotPresent
-    tag: 0.17.0-13.11-r1
+    tag: 0.17.0-13.11-r2
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -278,6 +296,15 @@ keeper:
   tolerations: []
 
   affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         labelSelector:
+    #           matchLabels:
+    #             component: stolon-keeper
+    #             stolon-cluster: k8s-ha
+    #         topologyKey: topology.kubernetes.io/zone
 
   securityContext:
     allowPrivilegeEscalation: false
@@ -321,17 +348,28 @@ stolonctl:
   image:
     repository: ghcr.io/k8s-images/stolon/stolonctl
     pullPolicy: IfNotPresent
-    tag: 0.17.0-r1
+    tag: 0.17.0-r2
 
   extraEnvVars: []
   extraVolumes: []
   extraVolumeMounts: []
 
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsUser: 1042
+    runAsGroup: 1042
+
+  podSecurityContext: {}
+
 postgresUtils:
   image:
     repository: ghcr.io/k8s-images/stolon/postgres-utils
     pullPolicy: IfNotPresent
-    tag: 13.11-r1
+    tag: 13.11-r2
 
   securityContext:
     allowPrivilegeEscalation: false
@@ -349,8 +387,7 @@ postgresUtils:
   extraVolumes: []
   extraVolumeMounts: []
 
-# postInstallQuieries: []
-postInstallQuieries:
-  - CREATE USER myappuser WITH PASSWORD 'myapppassword' CREATEDB
-  - CREATE DATABASE myappdb WITH OWNER myappuser
-  - GRANT ALL PRIVILEGES ON DATABASE myappdb TO myappuser
+postInstallQuieries: []
+  # - CREATE USER myappuser WITH PASSWORD 'myapppassword' CREATEDB
+  # - CREATE DATABASE myappdb WITH OWNER myappuser
+  # - GRANT ALL PRIVILEGES ON DATABASE myappdb TO myappuser

@@ -6,11 +6,15 @@ metadata:
     {{- include "stolon.labels" . | nindent 4 }}
     app.kubernetes.io/component: proxy
 spec:
-  type: {{ .Values.proxy.service.type }}
+  type: ClusterIP
   ports:
     - port: {{ .Values.proxy.service.port }}
       targetPort: postgres
       protocol: TCP
       name: postgres
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 86400
   selector:
     {{- include "stolon.proxy.selectorLabels" . | nindent 4 }}
