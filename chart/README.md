@@ -1,6 +1,6 @@
 # stolon
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.17.0](https://img.shields.io/badge/AppVersion-0.17.0-informational?style=flat-square)
+![Version: 0.2.2](https://img.shields.io/badge/Version-0.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.17.0](https://img.shields.io/badge/AppVersion-0.17.0-informational?style=flat-square)
 
 Stolon is a cloud native PostgreSQL manager for PostgreSQL high availability
 
@@ -36,7 +36,7 @@ Stolon is a cloud native PostgreSQL manager for PostgreSQL high availability
 | keeper.extraVolumes | list | `[]` |  |
 | keeper.image.pullPolicy | string | `"IfNotPresent"` |  |
 | keeper.image.repository | string | `"ghcr.io/k8s-images/stolon/keeper"` |  |
-| keeper.image.tag | string | `"0.17.0-13.11-r2"` |  |
+| keeper.image.tag | string | `"0.17.0-13.12-r3"` |  |
 | keeper.metrics.enabled | bool | `true` |  |
 | keeper.metrics.port | int | `9003` |  |
 | keeper.nodeSelector | object | `{}` |  |
@@ -64,7 +64,7 @@ Stolon is a cloud native PostgreSQL manager for PostgreSQL high availability
 | postgresUtils.extraVolumes | list | `[]` |  |
 | postgresUtils.image.pullPolicy | string | `"IfNotPresent"` |  |
 | postgresUtils.image.repository | string | `"ghcr.io/k8s-images/stolon/postgres-utils"` |  |
-| postgresUtils.image.tag | string | `"13.11-r2"` |  |
+| postgresUtils.image.tag | string | `"13.12-r3"` |  |
 | postgresUtils.podSecurityContext.fsGroup | int | `1042` |  |
 | postgresUtils.securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | postgresUtils.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
@@ -84,7 +84,7 @@ Stolon is a cloud native PostgreSQL manager for PostgreSQL high availability
 | proxy.extraVolumes | list | `[]` |  |
 | proxy.image.pullPolicy | string | `"IfNotPresent"` |  |
 | proxy.image.repository | string | `"ghcr.io/k8s-images/stolon/proxy"` |  |
-| proxy.image.tag | string | `"0.17.0-r2"` |  |
+| proxy.image.tag | string | `"0.17.0-r3"` |  |
 | proxy.metrics.enabled | bool | `true` |  |
 | proxy.metrics.port | int | `9002` |  |
 | proxy.nodeSelector | object | `{}` |  |
@@ -121,7 +121,7 @@ Stolon is a cloud native PostgreSQL manager for PostgreSQL high availability
 | sentinel.extraVolumes | list | `[]` |  |
 | sentinel.image.pullPolicy | string | `"IfNotPresent"` |  |
 | sentinel.image.repository | string | `"ghcr.io/k8s-images/stolon/sentinel"` |  |
-| sentinel.image.tag | string | `"0.17.0-r2"` |  |
+| sentinel.image.tag | string | `"0.17.0-r3"` |  |
 | sentinel.metrics.enabled | bool | `true` |  |
 | sentinel.metrics.port | int | `9001` |  |
 | sentinel.nodeSelector | object | `{}` |  |
@@ -152,7 +152,7 @@ Stolon is a cloud native PostgreSQL manager for PostgreSQL high availability
 | stolonctl.extraVolumes | list | `[]` |  |
 | stolonctl.image.pullPolicy | string | `"IfNotPresent"` |  |
 | stolonctl.image.repository | string | `"ghcr.io/k8s-images/stolon/stolonctl"` |  |
-| stolonctl.image.tag | string | `"0.17.0-r2"` |  |
+| stolonctl.image.tag | string | `"0.17.0-r3"` |  |
 | stolonctl.podSecurityContext | object | `{}` |  |
 | stolonctl.securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | stolonctl.securityContext.capabilities.drop[0] | string | `"ALL"` |  |

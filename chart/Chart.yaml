@@ -3,7 +3,7 @@ type: application
 name: stolon
 icon: https://github.com/sorintlab/stolon/raw/master/logos/stolon-color.png
 description: Stolon is a cloud native PostgreSQL manager for PostgreSQL high availability
-version: 0.2.1
+version: 0.2.2
 appVersion: 0.17.0
 dependencies: []
 home: https://github.com/k8s-images/stolon

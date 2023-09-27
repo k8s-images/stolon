@@ -1,7 +1,7 @@
 
 # --- Aliases for official images
 
-FROM docker.io/library/postgres:13.11@sha256:538cb8a80fbb8da5275d7e1564da9413357a47dc2b0f8803708bafe3bcece1e8 AS postgres
+FROM docker.io/library/postgres:13.12@sha256:7e5a5a04a5d439910735f8591f70d96e58f7681072d7205f74d1a6c7b23a1672 AS postgres
 FROM docker.io/sorintlab/stolon:v0.17.0-pg13@sha256:7a6e890392f2fa787fa136408bbf757d4c7deb6230efc07b773b35f323685103 AS sorintlab-stolon
 FROM docker.io/library/busybox:1.36.1@sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee AS builder
 
@@ -139,13 +139,14 @@ RUN set -eux \
     --shell /bin/bash \
     stolon \
   \
-  ; mkdir -p /data \
-  ; chown 1042:1042 /data \
-  ; chmod 0700 /data
+  ; mkdir -p /data/postgres \
+  ; chown -R 1042:1042 /data \
+  ; chmod 0700 /data \
+  ; chmod 0750 /data/postgres
 
 USER 1042:1042
 
-ENV PGDATA="/data" \
+ENV PGDATA="/data/postgres" \
     STOLON_DATA="/data" \
     STKEEPER_DATA_DIR="/data" \
     STKEEPER_STORE_BACKEND="kubernetes" \
