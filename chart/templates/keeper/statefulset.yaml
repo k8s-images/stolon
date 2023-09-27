@@ -27,6 +27,12 @@ spec:
       serviceAccountName: {{ include "stolon.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.keeper.podSecurityContext | nindent 8 }}
+      {{- if .Values.keeper.initContainers }}
+      initContainers:
+        {{- range $i, $container := .Values.keeper.initContainers }}
+        - {{ toYaml $container | indent 10 | trim }}
+        {{- end }}
+      {{- end }}
       containers:
         - name: keeper
           securityContext:

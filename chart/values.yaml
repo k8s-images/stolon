@@ -341,6 +341,21 @@ keeper:
     storageClass: ""
     size: 8Gi
 
+  initContainers: []
+  # initContainers:
+  #   - name: fix-permissions
+  #     image: docker.io/library/busybox:1.36.1
+  #     command:
+  #       - /bin/sh
+  #       - '-ec'
+  #     args:
+  #       - >-
+  #         chown 1042:1042 /data/postgres
+  #         chmod 0750 /data/postgres
+  #     volumeMounts:
+  #       - name: data
+  #         mountPath: /data
+
   extraEnvVars: []
   extraVolumes: []
   extraVolumeMounts: []

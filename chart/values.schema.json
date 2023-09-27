@@ -60,6 +60,9 @@
                         }
                     }
                 },
+                "initContainers": {
+                    "type": "array"
+                },
                 "metrics": {
                     "type": "object",
                     "properties": {
