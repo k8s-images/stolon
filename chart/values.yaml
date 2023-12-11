@@ -142,7 +142,7 @@ sentinel:
   image:
     repository: ghcr.io/k8s-images/stolon/sentinel
     pullPolicy: IfNotPresent
-    tag: 0.17.0-r3
+    tag: 0.17.0-r4
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -207,7 +207,7 @@ proxy:
   image:
     repository: ghcr.io/k8s-images/stolon/proxy
     pullPolicy: IfNotPresent
-    tag: 0.17.0-r3
+    tag: 0.17.0-r4
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -278,7 +278,7 @@ keeper:
   image:
     repository: ghcr.io/k8s-images/stolon/keeper
     pullPolicy: IfNotPresent
-    tag: 0.17.0-13.12-r3
+    tag: 0.17.0-13.13-r4
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -364,7 +364,7 @@ stolonctl:
   image:
     repository: ghcr.io/k8s-images/stolon/stolonctl
     pullPolicy: IfNotPresent
-    tag: 0.17.0-r3
+    tag: 0.17.0-r4
 
   extraEnvVars: []
   extraVolumes: []
@@ -385,7 +385,7 @@ postgresUtils:
   image:
     repository: ghcr.io/k8s-images/stolon/postgres-utils
     pullPolicy: IfNotPresent
-    tag: 13.12-r3
+    tag: 13.13-r4
 
   securityContext:
     allowPrivilegeEscalation: false
