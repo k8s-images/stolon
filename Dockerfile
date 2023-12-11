@@ -1,9 +1,9 @@
 
 # --- Aliases for official images
 
-FROM docker.io/library/postgres:13.12@sha256:7e5a5a04a5d439910735f8591f70d96e58f7681072d7205f74d1a6c7b23a1672 AS postgres
+FROM docker.io/library/postgres:13.13@sha256:b6a7afa0e6d870e50f9e291d2b8c91d9e1d80394e9bbfb543d330a1e222d3e80 AS postgres
 FROM docker.io/sorintlab/stolon:v0.17.0-pg13@sha256:7a6e890392f2fa787fa136408bbf757d4c7deb6230efc07b773b35f323685103 AS sorintlab-stolon
-FROM docker.io/library/busybox:1.36.1@sha256:023917ec6a886d0e8e15f28fb543515a5fcd8d938edb091e8147db4efed388ee AS builder
+FROM docker.io/library/busybox:1.36.1@sha256:1780cb47b7dfbcbf1e511be1cdb62722bd0ce208b996ea199689b56892e15af9 AS builder
 
 # --- Scripts
 
